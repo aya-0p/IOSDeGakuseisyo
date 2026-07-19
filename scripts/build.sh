@@ -61,7 +61,8 @@ mkdir -p "$STAGE/DEBIAN" "$APP" "$DOCS" "$DIST"
     "$ROOT/Sources/UI/ViewController.mm" \
     "$ROOT/Sources/Protocol/NFCFProfileRecord.cpp" \
     "$ROOT/Sources/Protocol/FeliCaPollingResponse.cpp" \
-    -framework UIKit -framework Foundation -framework CoreNFC \
+    -framework UIKit -framework Foundation -framework CoreGraphics \
+    -framework CoreNFC \
     -framework Security -framework UniformTypeIdentifiers -lc++ \
     -Wl,-no_auth_data \
     -o "$APP/IOSDeGakuseisyo"
