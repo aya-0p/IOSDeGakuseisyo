@@ -1,0 +1,4 @@
+#!/var/jb/usr/bin/sh
+
+/var/jb/usr/bin/uicache -p /var/jb/Applications/IOSDeGakuseisyo.app || true
+exit 0

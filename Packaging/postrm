@@ -1,0 +1,8 @@
+#!/var/jb/usr/bin/sh
+
+if [ "${1:-}" = "purge" ]; then
+    rm -rf /var/mobile/Library/Preferences/org.hoshitsugi.iosdegakuseisyo.cards
+    rm -f /var/mobile/Library/Preferences/org.hoshitsugi.iosdegakuseisyo.cards.index.json
+fi
+
+exit 0

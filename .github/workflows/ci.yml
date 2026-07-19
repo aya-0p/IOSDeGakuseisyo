@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  portable-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Check tracked source
+        run: bash scripts/check-source.sh
+      - name: Validate shell syntax
+        run: |
+          bash -n scripts/build.sh scripts/build-ios-ci.sh scripts/test.sh scripts/test-macos.sh scripts/check-protocol-sync.sh scripts/check-source.sh
+          sh -n Packaging/postinst Packaging/prerm Packaging/postrm
+      - name: Run portable tests
+        run: bash scripts/test.sh
+
+  apple-build-and-tests:
+    runs-on: macos-15
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Run Foundation tests
+        run: bash scripts/test-macos.sh
+      - name: Compile the iOS application
+        run: bash scripts/build-ios-ci.sh

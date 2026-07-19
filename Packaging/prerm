@@ -1,0 +1,4 @@
+#!/var/jb/usr/bin/sh
+
+/var/jb/usr/bin/uicache -u org.hoshitsugi.iosdegakuseisyo || true
+exit 0
