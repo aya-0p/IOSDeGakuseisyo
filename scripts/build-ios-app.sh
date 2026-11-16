@@ -88,9 +88,7 @@ EOF
     cd "$WORK_DIR"
     make \
         THEOS="$THEOS" \
-        THEOS_PLATFORM_SDK_ROOT="$XCODE_DEVELOPER_DIR" \
-        THEOS_OBJ_DIR="$WORK_DIR/obj" \
-        THEOS_BUILD_DIR="$WORK_DIR/build"
+        THEOS_PLATFORM_SDK_ROOT="$XCODE_DEVELOPER_DIR"
 )
 
 APP_BINARY=$(find "$WORK_DIR" -type f -path '*/IOSDeGakuseisyo.app/IOSDeGakuseisyo' -print -quit)
