@@ -6,7 +6,7 @@ ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
 THEOS=${THEOS:-}
 SDK=${SDK:-"$(xcrun --sdk iphoneos --show-sdk-path)"}
 SDK_VERSION=${SDK_VERSION:-"$(xcrun --sdk iphoneos --show-sdk-version)"}
-SDK_PLATFORM=${SDK_PLATFORM:-"$(xcrun --sdk iphoneos --show-sdk-platform-path)"}
+XCODE_DEVELOPER_DIR=${XCODE_DEVELOPER_DIR:-"$(xcode-select --print-path)"}
 LDID=${LDID:-"$(command -v ldid || true)"}
 DPKG_DEB=${DPKG_DEB:-"$(command -v dpkg-deb || true)"}
 SHA256SUM=${SHA256SUM:-"$(command -v sha256sum || command -v shasum || true)"}
@@ -35,7 +35,7 @@ require_command "$SHA256SUM"
 require_command make
 require_command install
 
-if [[ ! -d "$SDK" || ! -d "$SDK_PLATFORM" ]]; then
+if [[ ! -d "$SDK" || ! -d "$XCODE_DEVELOPER_DIR/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS${SDK_VERSION}.sdk" ]]; then
     echo "iPhoneOS SDK was not found through Xcode." >&2
     exit 1
 fi
@@ -80,7 +80,7 @@ EOF
 
 make -f "$WORK_DIR/Makefile" \
     THEOS="$THEOS" \
-    THEOS_PLATFORM_SDK_ROOT="$SDK_PLATFORM" \
+    THEOS_PLATFORM_SDK_ROOT="$XCODE_DEVELOPER_DIR" \
     THEOS_OBJ_DIR="$WORK_DIR/obj" \
     THEOS_BUILD_DIR="$WORK_DIR/build"
 
