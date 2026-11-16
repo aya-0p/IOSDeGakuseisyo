@@ -33,8 +33,8 @@ int main() {
     assert(sizeof(encoded) == 99);
     assert(memcmp(encoded, "NFCFPROF", 8) == 0);
     assert(encoded[8] == 1 && encoded[9] == 0);
-    assert(encoded[12] == 0x00 && encoded[13] == 0xfe);
-    assert(encoded[14] == 0x8b && encoded[15] == 0x1a);
+    assert(encoded[12] == 0x8b && encoded[13] == 0x04);
+    assert(encoded[14] == 0x0b && encoded[15] == 0x20);
     assert(encoded[30] == nfcf::kMaximumBlockCount);
 
     nfcf::ProfileRecord decoded = {};
