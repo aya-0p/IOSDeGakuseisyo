@@ -70,7 +70,13 @@ IOSDeGakuseisyo_FILES := \\
 	$ROOT/Sources/UI/ViewController.mm \\
 	$ROOT/Sources/Protocol/NFCFProfileRecord.cpp \\
 	$ROOT/Sources/Protocol/FeliCaPollingResponse.cpp
-IOSDeGakuseisyo_CFLAGS := -fobjc-arc -fmodules -std=gnu++17
+IOSDeGakuseisyo_CFLAGS := -fobjc-arc -fmodules -std=gnu++17 \\
+	-I$ROOT/Sources/Application \\
+	-I$ROOT/Sources/Models \\
+	-I$ROOT/Sources/Services \\
+	-I$ROOT/Sources/Storage \\
+	-I$ROOT/Sources/UI \\
+	-I$ROOT/Sources/Protocol
 IOSDeGakuseisyo_FRAMEWORKS := UIKit Foundation CoreGraphics CoreNFC Security UniformTypeIdentifiers
 IOSDeGakuseisyo_LDFLAGS := -lc++
 
