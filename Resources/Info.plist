@@ -50,7 +50,7 @@
     <string>自分のNFC-F学生証を読み取り、この端末で使用します。</string>
     <key>com.apple.developer.nfc.readersession.felica.systemcodes</key>
     <array>
-        <string>FE00</string>
+        <string>048B</string>
     </array>
     <key>UIDeviceFamily</key>
     <array>

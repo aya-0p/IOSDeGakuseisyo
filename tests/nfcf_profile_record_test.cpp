@@ -5,8 +5,8 @@
 
 int main() {
     nfcf::Profile profile = {};
-    profile.system_code = 0xfe00;
-    profile.service_code = 0x1a8b;
+    profile.system_code = 0x048b;
+    profile.service_code = 0x200b;
     const uint8_t idm[8] = {
         0x01, 0xfe, 0x00, 0x10, 0x20, 0x30, 0x40, 0x50,
     };

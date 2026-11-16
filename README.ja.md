@@ -14,7 +14,7 @@ IOSDeGakuseisyoは、Core NFCでNFC-F学生証を読み取り、その非暗号�
 | iOS | 16.0.2 (`20A380`) |
 | 脱獄 | rootless |
 | バックエンド | `org.hoshitsugi.iosnfcfcardemulation` 0.1.0以降 |
-| カード | System Code `FE00`、Service Code `1A8B`、ブロック0〜3 |
+| カード | System Code `048B`、Service Code `200B`、ブロック0〜3 |
 
 これ以外の端末とiOSバージョンでの動作は未検証であり、保証しません。
 
@@ -39,6 +39,9 @@ THEOS="$HOME/theos" bash scripts/build.sh
 ```
 
 生成物は`dist/org.hoshitsugi.iosdegakuseisyo_0.1.0_iphoneos-arm64.deb`です。
+
+`v*.*`形式のタグをプッシュすると、GitHub Actionsで`.deb`パッケージをビルドし、
+ワークフローのアーティファクトとして公開します。
 
 ## ライセンス
 

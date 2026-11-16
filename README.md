@@ -14,7 +14,7 @@ It cannot be installed as a normal App Store or AltStore app.
 | iOS | 16.0.2 (`20A380`) |
 | Jailbreak | rootless |
 | Backend | `org.hoshitsugi.iosnfcfcardemulation` 0.1.0 or later |
-| Card profile | System Code `FE00`, Service Code `1A8B`, blocks 0–3 |
+| Card profile | System Code `048B`, Service Code `200B`, blocks 0–3 |
 
 Other devices and iOS versions have not been tested and are not guaranteed to work.
 
@@ -39,6 +39,9 @@ THEOS="$HOME/theos" bash scripts/build.sh
 ```
 
 The package is written to `dist/org.hoshitsugi.iosdegakuseisyo_0.1.0_iphoneos-arm64.deb`.
+
+When a `v*.*` tag is pushed, GitHub Actions builds the `.deb` package and
+publishes it as a workflow artifact.
 
 ## License
 

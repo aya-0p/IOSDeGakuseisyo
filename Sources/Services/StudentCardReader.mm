@@ -93,7 +93,7 @@ static NSError *ReaderError(NSInteger code, NSString *description) {
     if (felica == nil || ![felica.currentSystemCode isEqualToData:systemCode] ||
         felica.currentIDm.length != 8) {
         [self fail:session message:@"FeliCa学生証ではありません。"
-              error:ReaderError(2, @"FE00のFeliCa学生証を検出できませんでした。")];
+              error:ReaderError(2, @"048BのFeliCa学生証を検出できませんでした。")];
         return;
     }
 

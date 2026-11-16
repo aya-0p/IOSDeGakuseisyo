@@ -19,8 +19,8 @@ static NSString *const kBackendStateDirectory =
 static NSString *const kTemporaryProfilePath =
     @"/var/mobile/Library/Caches/org.hoshitsugi.iosnfcfcardemulation/profile.record";
 
-const uint16_t StudentCardSystemCode = 0xfe00;
-const uint16_t StudentCardServiceCode = 0x1a8b;
+const uint16_t StudentCardSystemCode = 0x048b;
+const uint16_t StudentCardServiceCode = 0x200b;
 const NSUInteger StudentCardBlockCount = 4;
 
 static void SecureZero(void *bytes, size_t length) {
