@@ -78,11 +78,14 @@ include \$(THEOS)/makefiles/common.mk
 include \$(THEOS_MAKE_PATH)/application.mk
 EOF
 
-make -f "$WORK_DIR/Makefile" \
-    THEOS="$THEOS" \
-    THEOS_PLATFORM_SDK_ROOT="$XCODE_DEVELOPER_DIR" \
-    THEOS_OBJ_DIR="$WORK_DIR/obj" \
-    THEOS_BUILD_DIR="$WORK_DIR/build"
+(
+    cd "$WORK_DIR"
+    make \
+        THEOS="$THEOS" \
+        THEOS_PLATFORM_SDK_ROOT="$XCODE_DEVELOPER_DIR" \
+        THEOS_OBJ_DIR="$WORK_DIR/obj" \
+        THEOS_BUILD_DIR="$WORK_DIR/build"
+)
 
 APP_BINARY=$(find "$WORK_DIR" -type f -path '*/IOSDeGakuseisyo.app/IOSDeGakuseisyo' -print -quit)
 if [[ -z "$APP_BINARY" ]]; then
