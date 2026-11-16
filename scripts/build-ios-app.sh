@@ -10,6 +10,9 @@ XCODE_DEVELOPER_DIR=${XCODE_DEVELOPER_DIR:-"$(xcode-select --print-path)"}
 LDID=${LDID:-"$(command -v ldid || true)"}
 DPKG_DEB=${DPKG_DEB:-"$(command -v dpkg-deb || true)"}
 SHA256SUM=${SHA256SUM:-"$(command -v sha256sum || command -v shasum || true)"}
+ARCHS=${ARCHS:-arm64}
+IOS_DEPLOYMENT_TARGET=${IOS_DEPLOYMENT_TARGET:-16.0}
+PACKAGE_ARCH=${PACKAGE_ARCH:-iphoneos-$ARCHS}
 
 require_command() {
     local command=$1
@@ -52,8 +55,8 @@ trap 'rm -rf -- "$WORK_DIR"' EXIT
 
 cat >"$WORK_DIR/Makefile" <<EOF
 THEOS := $THEOS
-TARGET := iphone:clang:$SDK_VERSION
-ARCHS := arm64
+ARCHS := $ARCHS
+TARGET := iphone:clang:$SDK_VERSION:$IOS_DEPLOYMENT_TARGET
 APPLICATION_NAME := IOSDeGakuseisyo
 
 IOSDeGakuseisyo_FILES := \\
@@ -101,7 +104,7 @@ STAGE="$WORK_DIR/stage"
 APP="$STAGE/var/jb/Applications/IOSDeGakuseisyo.app"
 DOCS="$STAGE/var/jb/usr/share/doc/$PACKAGE"
 DIST="$ROOT/dist"
-OUTPUT="$DIST/${PACKAGE}_${VERSION}_iphoneos-arm64.deb"
+OUTPUT="$DIST/${PACKAGE}_${VERSION}_iphoneos-${ARCHS}.deb"
 mkdir -p "$STAGE/DEBIAN" "$APP" "$DOCS" "$DIST"
 
 install -m 0755 "$APP_BINARY" "$APP/IOSDeGakuseisyo"
@@ -116,7 +119,9 @@ for icon in \
     install -m 0644 "$ROOT/Resources/$icon" "$APP/$icon"
 done
 
-install -m 0644 "$ROOT/Packaging/control" "$STAGE/DEBIAN/control"
+awk -v architecture="$PACKAGE_ARCH" \
+    '$1 == "Architecture:" {$0 = "Architecture: " architecture} {print}' \
+    "$ROOT/Packaging/control" >"$STAGE/DEBIAN/control"
 install -m 0755 "$ROOT/Packaging/postinst" "$STAGE/DEBIAN/postinst"
 install -m 0755 "$ROOT/Packaging/prerm" "$STAGE/DEBIAN/prerm"
 install -m 0755 "$ROOT/Packaging/postrm" "$STAGE/DEBIAN/postrm"
