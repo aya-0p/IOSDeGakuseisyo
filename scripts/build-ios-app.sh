@@ -3,16 +3,13 @@
 set -euo pipefail
 
 ROOT=$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)
+THEOS=${THEOS:-}
 SDK=${SDK:-"$(xcrun --sdk iphoneos --show-sdk-path)"}
-CLANG=${CLANG:-"$(xcrun -f clang++)"}
+SDK_VERSION=${SDK_VERSION:-"$(xcrun --sdk iphoneos --show-sdk-version)"}
+SDK_PLATFORM=${SDK_PLATFORM:-"$(xcrun --sdk iphoneos --show-sdk-platform-path)"}
 LDID=${LDID:-"$(command -v ldid || true)"}
 DPKG_DEB=${DPKG_DEB:-"$(command -v dpkg-deb || true)"}
 SHA256SUM=${SHA256SUM:-"$(command -v sha256sum || command -v shasum || true)"}
-
-if [[ ! -d "$SDK" ]]; then
-    echo "iPhoneOS SDK not found: $SDK" >&2
-    exit 1
-fi
 
 require_command() {
     local command=$1
@@ -31,9 +28,17 @@ require_command() {
     fi
 }
 
-for command in "$CLANG" "$LDID" "$DPKG_DEB" "$SHA256SUM" install; do
-    require_command "$command"
-done
+require_command "$THEOS"
+require_command "$LDID"
+require_command "$DPKG_DEB"
+require_command "$SHA256SUM"
+require_command make
+require_command install
+
+if [[ ! -d "$SDK" || ! -d "$SDK_PLATFORM" ]]; then
+    echo "iPhoneOS SDK was not found through Xcode." >&2
+    exit 1
+fi
 
 PACKAGE=$(awk '$1 == "Package:" { print $2 }' "$ROOT/Packaging/control")
 VERSION=$(awk '$1 == "Version:" { print $2 }' "$ROOT/Packaging/control")
@@ -45,6 +50,46 @@ fi
 WORK_DIR=$(mktemp -d "${TMPDIR:-/tmp}/ios-de-gakuseisyo.XXXXXX")
 trap 'rm -rf -- "$WORK_DIR"' EXIT
 
+cat >"$WORK_DIR/Makefile" <<EOF
+THEOS := $THEOS
+TARGET := iphone:clang:$SDK_VERSION
+ARCHS := arm64
+APPLICATION_NAME := IOSDeGakuseisyo
+
+IOSDeGakuseisyo_FILES := \\
+	$ROOT/Sources/Application/main.mm \\
+	$ROOT/Sources/Application/AppDelegate.mm \\
+	$ROOT/Sources/Services/BackendClient.mm \\
+	$ROOT/Sources/Services/BackendResult.mm \\
+	$ROOT/Sources/Services/NFCFSessionController.mm \\
+	$ROOT/Sources/Storage/CardStore.mm \\
+	$ROOT/Sources/Storage/CardBackupCodec.mm \\
+	$ROOT/Sources/Storage/StudentCardRepository.mm \\
+	$ROOT/Sources/Models/StudentCard.mm \\
+	$ROOT/Sources/Services/StudentCardReader.mm \\
+	$ROOT/Sources/UI/ViewController.mm \\
+	$ROOT/Sources/Protocol/NFCFProfileRecord.cpp \\
+	$ROOT/Sources/Protocol/FeliCaPollingResponse.cpp
+IOSDeGakuseisyo_CFLAGS := -fobjc-arc -fmodules -std=gnu++17
+IOSDeGakuseisyo_FRAMEWORKS := UIKit Foundation CoreGraphics CoreNFC Security UniformTypeIdentifiers
+IOSDeGakuseisyo_LDFLAGS := -lc++
+
+include \$(THEOS)/makefiles/common.mk
+include \$(THEOS_MAKE_PATH)/application.mk
+EOF
+
+make -f "$WORK_DIR/Makefile" \
+    THEOS="$THEOS" \
+    THEOS_PLATFORM_SDK_ROOT="$SDK_PLATFORM" \
+    THEOS_OBJ_DIR="$WORK_DIR/obj" \
+    THEOS_BUILD_DIR="$WORK_DIR/build"
+
+APP_BINARY=$(find "$WORK_DIR" -type f -path '*/IOSDeGakuseisyo.app/IOSDeGakuseisyo' -print -quit)
+if [[ -z "$APP_BINARY" ]]; then
+    echo "Theos did not produce the application binary." >&2
+    exit 1
+fi
+
 STAGE="$WORK_DIR/stage"
 APP="$STAGE/var/jb/Applications/IOSDeGakuseisyo.app"
 DOCS="$STAGE/var/jb/usr/share/doc/$PACKAGE"
@@ -52,35 +97,7 @@ DIST="$ROOT/dist"
 OUTPUT="$DIST/${PACKAGE}_${VERSION}_iphoneos-arm64.deb"
 mkdir -p "$STAGE/DEBIAN" "$APP" "$DOCS" "$DIST"
 
-"$CLANG" -fobjc-arc -fmodules -O2 -Wall -Wextra -Werror \
-    -std=gnu++17 \
-    -target arm64-apple-ios16.0 -isysroot "$SDK" \
-    -F"$SDK/System/Library/Frameworks" \
-    -I"$ROOT/Sources/Application" \
-    -I"$ROOT/Sources/Models" \
-    -I"$ROOT/Sources/Services" \
-    -I"$ROOT/Sources/Storage" \
-    -I"$ROOT/Sources/UI" \
-    -I"$ROOT/Sources/Protocol" \
-    "$ROOT/Sources/Application/main.mm" \
-    "$ROOT/Sources/Application/AppDelegate.mm" \
-    "$ROOT/Sources/Services/BackendClient.mm" \
-    "$ROOT/Sources/Services/BackendResult.mm" \
-    "$ROOT/Sources/Services/NFCFSessionController.mm" \
-    "$ROOT/Sources/Storage/CardStore.mm" \
-    "$ROOT/Sources/Storage/CardBackupCodec.mm" \
-    "$ROOT/Sources/Storage/StudentCardRepository.mm" \
-    "$ROOT/Sources/Models/StudentCard.mm" \
-    "$ROOT/Sources/Services/StudentCardReader.mm" \
-    "$ROOT/Sources/UI/ViewController.mm" \
-    "$ROOT/Sources/Protocol/NFCFProfileRecord.cpp" \
-    "$ROOT/Sources/Protocol/FeliCaPollingResponse.cpp" \
-    -framework UIKit -framework Foundation -framework CoreGraphics \
-    -framework CoreNFC \
-    -framework Security -framework UniformTypeIdentifiers -lc++ \
-    -Wl,-no_auth_data \
-    -o "$APP/IOSDeGakuseisyo"
-
+install -m 0755 "$APP_BINARY" "$APP/IOSDeGakuseisyo"
 "$LDID" -S"$ROOT/Packaging/entitlements.plist" "$APP/IOSDeGakuseisyo"
 install -m 0644 "$ROOT/Resources/Info.plist" "$APP/Info.plist"
 for icon in \
